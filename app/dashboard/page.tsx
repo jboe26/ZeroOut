@@ -85,19 +85,23 @@ export default function Dashboard() {
       <section className="mt-8">
         <h2 className="text-xl text-white mb-4">Recent Transactions</h2>
         <div className="bg-slate-800 p-4 rounded">
-          {combined.map((t: any) => (
-            <div
-              key={t._id}
-              className="flex justify-between py-2 border-b border-slate-700"
-            >
-              <span className="text-white">{t.description}</span>
-              <span
-                className={t.amount > 0 ? "text-green-400" : "text-red-400"}
+          {combined.length === 0 ? (
+            <p className="text-gray-400">No recent transactions to display.</p>
+          ) : (
+            combined.map((t: any) => (
+              <div
+                key={t._id}
+                className="flex justify-between items-center mb-2 border-b border-slate-700"
               >
-                ${Math.abs(t.amount).toFixed(2)}
-              </span>
-            </div>
-          ))}
+                <span className="text-white">{t.description}</span>
+                <span
+                  className={t.amount > 0 ? "text-green-400" : "text-red-400"}
+                >
+                  ${Math.abs(t.amount).toFixed(2)}
+                </span>
+              </div>
+            ))
+          )}
         </div>
       </section>
     </div>
