@@ -17,6 +17,24 @@ export default function Dashboard() {
     }
   }, [status, router]);
 
+  const handleDeleteTransaction = (id: string) => {
+    if (confirm("Are you sure you want to delete this transaction?")) {
+      fetch(`/api/transactions/${id}`, {
+        method: "DELETE",
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            setExpense((prev) => prev.filter((t: any) => t._id !== id));
+            setIncome((prev) => prev.filter((t: any) => t._id !== id));
+          } else {
+            alert("Failed to delete transaction.");
+          }
+        })
+        .catch(() => alert("An error occurred while deleting."));
+    }
+  };
+
   useEffect(() => {
     if (status === "authenticated") {
       const fetchData = async () => {
@@ -56,10 +74,31 @@ export default function Dashboard() {
 
   const totalIncome = income.reduce((acc, t: any) => acc + t.amount, 0);
   const totalExpenses = expenses.reduce((acc, t: any) => acc + t.amount, 0);
-  const totalDebt = debt.reduce((acc, t: any) => acc + t.amount, 0);
+  const totalDebt = debt.reduce((acc, t: any) => acc + t.balance, 0);
   const combined = [...income, ...expenses].sort(
     (a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime(),
   );
+
+  const handleDeleteDebt = async (id: string) => {
+    if (!id) return;
+
+    if (confirm("Are you sure you want to delete this debt?")) {
+      try {
+        const res = await fetch(`/api/debts/${id}`, {
+          method: "DELETE",
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          setDebt((prev) => prev.filter((d: any) => d._id !== id));
+        } else {
+          alert("Failed to delete debt.");
+        }
+      } catch (error) {
+        alert("An error occurred while deleting the debt.");
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-900 max-w-6xl mx-auto p-8">
@@ -99,6 +138,41 @@ export default function Dashboard() {
                 >
                   ${Math.abs(t.amount).toFixed(2)}
                 </span>
+                <button
+                  onClick={() => handleDeleteTransaction(t._id)}
+                  className="text-red-400 hover:text-red-300 text-sm ml-4"
+                >
+                  Delete
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+      </section>
+
+      <section className="mt-8">
+        <h2 className="text-xl text-white mb-4">List of Debts</h2>
+        <div className="bg-slate-800 p-4 rounded">
+          {debt.length === 0 ? (
+            <p className="text-gray-400">No recent debts to display.</p>
+          ) : (
+            debt.map((t: any) => (
+              <div
+                key={t._id}
+                className="flex justify-between items-center mb-2 border-b border-slate-700"
+              >
+                <span className="text-white">{t.name}</span>
+                <span
+                  className={t.balance > 0 ? "text-green-400" : "text-red-400"}
+                >
+                  ${Math.abs(t.balance).toFixed(2)}
+                </span>
+                <button
+                  onClick={() => handleDeleteDebt(t._id)}
+                  className="text-red-400 hover:text-red-300 text-sm ml-4"
+                >
+                  Delete
+                </button>
               </div>
             ))
           )}
