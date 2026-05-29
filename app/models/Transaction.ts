@@ -23,10 +23,9 @@ const transactionSchema = new mongoose.Schema({
     required: true,
   },
   userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    type: String,
     required: true,
-  },
-});
+  }
+  });
 
 export default mongoose.models.Transaction || mongoose.model("Transaction", transactionSchema);

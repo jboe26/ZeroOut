@@ -16,3 +16,27 @@ export async function GET() {
     return NextResponse.json({ success: false, message: "Error fetching transactions" }, { status: 500 });
   }
 }
+
+export async function POST(request: Request) {
+  const session = await getServerSession();
+  if (!session) {
+    return NextResponse.json({ success: false, message: "No user exists" }, { status: 401 });
+  }
+  try {
+    const { amount, description, date, category, type } = await request.json();
+    await connectToDatabase();
+    const newTransaction = new Transaction({
+      userId: session.user?.email,
+      amount,
+      description,
+      date,
+      category,
+      type
+    });
+    await newTransaction.save();
+    return NextResponse.json({ success: true, transaction: newTransaction });
+  } catch (error) {
+    console.error("Transaction error:", error);
+    return NextResponse.json({ success: false, message: "Error creating transaction" }, { status: 500 });
+  }
+}
